@@ -10,8 +10,8 @@ import { prisma } from "@/lib/prisma";
  *
  * Body: { riskScore: number, statusDescription?: string, source?: string, notes?: string }
  *
- * NOTE: This is an internal endpoint. In production it must sit behind
- * authentication/authorization middleware — omitted here for the MVP.
+ * Protected by `src/middleware.ts`, which gates all `/api/admin/*` routes
+ * behind an authenticated admin session (see `src/lib/auth.ts`).
  */
 export async function PATCH(
   request: NextRequest,

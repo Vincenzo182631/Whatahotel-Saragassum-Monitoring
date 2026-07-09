@@ -190,7 +190,10 @@ or `error` (all providers failed — 502). **401** on a bad/missing bearer token
 Manual override of a beach zone's risk. Cascades to every connected hotel's
 cached condition.
 
-> ⚠️ No authentication in the MVP — protect this route before production.
+> 🔒 Protected. All `/api/admin/*` routes (and `/admin` pages) require an
+> authenticated admin session — sign in at `/admin/login` (`POST
+> /api/admin/login` with `{ "password": "…" }`). See `ADMIN_PASSWORD` /
+> `ADMIN_SESSION_SECRET`. Requests without a valid session cookie get **401**.
 
 **Body**
 

@@ -126,9 +126,25 @@ npm run beaches:update              # use configured providers
 npm run beaches:update -- --seasonal   # force the seasonal estimator
 ```
 
+## Admin authentication
+
+The admin area (`/admin/*` pages and `/api/admin/*` routes) is gated by
+`src/middleware.ts`, which requires a signed admin session cookie
+(`src/lib/auth.ts` — HMAC-SHA256, no external deps).
+
+```bash
+# .env
+ADMIN_PASSWORD="choose-a-strong-password"
+ADMIN_SESSION_SECRET="$(openssl rand -base64 32)"
+```
+
+Sign in at `/admin/login`. When these vars are **unset**, the admin area is
+open in development but **locked in production** (fail-closed). Sessions last
+8 hours; log out from the dashboard header.
+
 ## Notes & next steps
 
-- The admin endpoint (`PATCH /api/admin/beaches/[id]`) has **no auth** yet —
-  add authentication/authorization middleware before production.
-- Phase 7 roadmap: automated NOAA/USF fetch job, weather/wind/current signals,
-  guest photo reports, webcam AI analysis, predictive forecasting.
+- Phase 7 roadmap: weather/wind/current signals, guest photo reports, webcam AI
+  analysis, predictive forecasting.
+- Consider per-user accounts/roles if more than one admin is needed (the MVP
+  uses a single shared password).

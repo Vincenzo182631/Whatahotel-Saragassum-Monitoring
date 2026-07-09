@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { relativeTime } from "@/lib/risk";
 import { AdminBeachRow } from "./AdminBeachRow";
+import { LogoutButton } from "../LogoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,16 @@ export default async function AdminBeachesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Beach Monitoring</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Internal dashboard — manually adjust risk scores and override incorrect
-        data. Changes cascade to every connected hotel.
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Beach Monitoring</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Internal dashboard — manually adjust risk scores and override
+            incorrect data. Changes cascade to every connected hotel.
+          </p>
+        </div>
+        <LogoutButton />
+      </div>
 
       <div className="mt-6 overflow-x-auto rounded-xl border bg-white">
         <table className="w-full text-left text-sm">
