@@ -1,0 +1,134 @@
+[
+  {
+    "name": "Hyatt Ziva Cancun",
+    "slug": "hyatt-ziva-cancun",
+    "city": "Cancun",
+    "country": "Mexico",
+    "beachZone": "Cancun Hotel Zone",
+    "pricePerNight": 500,
+    "rating": 4.8,
+    "description": "All-inclusive beachfront resort on Punta Cancun.",
+    "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4"
+  },
+  {
+    "name": "Atelier Playa Mujeres",
+    "slug": "atelier-playa-mujeres",
+    "city": "Playa Mujeres",
+    "country": "Mexico",
+    "beachZone": "Costa Mujeres",
+    "pricePerNight": 620,
+    "rating": 4.9,
+    "description": "Luxury all-inclusive on the quiet Costa Mujeres coast.",
+    "imageUrl": "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9"
+  },
+  {
+    "name": "Excellence Playa Mujeres",
+    "slug": "excellence-playa-mujeres",
+    "city": "Playa Mujeres",
+    "country": "Mexico",
+    "beachZone": "Costa Mujeres",
+    "pricePerNight": 540,
+    "rating": 4.7,
+    "description": "Adults-only resort with marina and long beach.",
+    "imageUrl": "https://images.unsplash.com/photo-1596436889106-be35e843f974"
+  },
+  {
+    "name": "Zoetry Villa Rolandi Isla Mujeres",
+    "slug": "zoetry-villa-rolandi-isla-mujeres",
+    "city": "Isla Mujeres",
+    "country": "Mexico",
+    "beachZone": "Isla Mujeres",
+    "pricePerNight": 610,
+    "rating": 4.8,
+    "description": "Boutique wellness resort on protected west-facing beach.",
+    "imageUrl": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b"
+  },
+  {
+    "name": "Grand Velas Riviera Maya",
+    "slug": "grand-velas-riviera-maya",
+    "city": "Playa del Carmen",
+    "country": "Mexico",
+    "beachZone": "Riviera Maya",
+    "pricePerNight": 700,
+    "rating": 4.8,
+    "description": "AAA Five Diamond all-inclusive set in the jungle and beach.",
+    "imageUrl": "https://images.unsplash.com/photo-1615880484746-a134be9a6ecf"
+  },
+  {
+    "name": "Hotel Xcaret Mexico",
+    "slug": "hotel-xcaret-mexico",
+    "city": "Playa del Carmen",
+    "country": "Mexico",
+    "beachZone": "Playa del Carmen",
+    "pricePerNight": 560,
+    "rating": 4.7,
+    "description": "All-Fun Inclusive resort with river and beach access.",
+    "imageUrl": "https://images.unsplash.com/photo-1610641818989-c2051b5e2cff"
+  },
+  {
+    "name": "Dreams Tulum Resort & Spa",
+    "slug": "dreams-tulum-resort-spa",
+    "city": "Tulum",
+    "country": "Mexico",
+    "beachZone": "Tulum",
+    "pricePerNight": 430,
+    "rating": 4.6,
+    "description": "Beachfront all-inclusive near Tulum ruins.",
+    "imageUrl": "https://images.unsplash.com/photo-1602002418082-a4443e081dd1"
+  },
+  {
+    "name": "Hard Rock Hotel Punta Cana",
+    "slug": "hard-rock-hotel-punta-cana",
+    "city": "Punta Cana",
+    "country": "Dominican Republic",
+    "beachZone": "Punta Cana",
+    "pricePerNight": 480,
+    "rating": 4.5,
+    "description": "Large all-inclusive resort on Macao Beach.",
+    "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5"
+  },
+  {
+    "name": "Half Moon Montego Bay",
+    "slug": "half-moon-montego-bay",
+    "city": "Montego Bay",
+    "country": "Jamaica",
+    "beachZone": "Montego Bay",
+    "pricePerNight": 520,
+    "rating": 4.7,
+    "description": "Historic resort on a two-mile crescent beach.",
+    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+  },
+  {
+    "name": "The Ocean Club Bahamas",
+    "slug": "the-ocean-club-bahamas",
+    "city": "Nassau",
+    "country": "Bahamas",
+    "beachZone": "Nassau",
+    "pricePerNight": 900,
+    "rating": 4.9,
+    "description": "Four Seasons resort on Paradise Island.",
+    "imageUrl": "https://images.unsplash.com/photo-1439066615861-d1af74d74000"
+  },
+  {
+    "name": "The Setai Miami Beach",
+    "slug": "the-setai-miami-beach",
+    "city": "Miami Beach",
+    "country": "United States",
+    "beachZone": "Miami Beach",
+    "pricePerNight": 850,
+    "rating": 4.8,
+    "description": "Oceanfront luxury on Collins Avenue.",
+    "imageUrl": "https://images.unsplash.com/photo-1571896349842-33c89424de2d"
+  },
+  {
+    "name": "Cheeca Lodge & Spa",
+    "slug": "cheeca-lodge-spa",
+    "city": "Islamorada",
+    "country": "United States",
+    "beachZone": "Florida Keys",
+    "pricePerNight": 640,
+    "rating": 4.6,
+    "description": "Iconic Islamorada resort in the Florida Keys.",
+    "imageUrl": "https://images.unsplash.com/photo-1505142468610-359e7d316be0"
+  }
+]
