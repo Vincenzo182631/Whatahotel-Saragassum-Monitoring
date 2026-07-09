@@ -60,6 +60,7 @@ npm run dev                   # http://localhost:3000
 | **Chatbot tools** | `src/lib/chatbot-tools.ts`, `src/app/api/chatbot/beach-condition` |
 | **Admin dashboard** | `src/app/admin/beaches`, `src/app/api/admin/beaches/[id]` |
 | **Data import service** | `src/lib/beach-data-service.ts`, `src/data/*.json` |
+| **Automated update job (Phase 2)** | `src/lib/beach-update-job.ts`, `src/lib/providers/*`, `src/app/api/cron/update-beaches` |
 
 ## Pages
 
@@ -85,6 +86,45 @@ The service is structured so future providers (a NOAA/USF fetcher on a 12-hour
 schedule, tourism feeds, user reports) can be added behind the same
 `importRecords` contract without changing callers. `riskLevel` is recomputed
 from `riskScore` on import, so it can be omitted.
+
+## Automated data collection (Phase 2)
+
+The update pipeline runs **every 12 hours**:
+
+```
+Fetch Data → Analyze Report → Assign Risk Score → Update Database → Update Hotels
+```
+
+- **Orchestrator:** `runBeachUpdate()` in `src/lib/beach-update-job.ts` tries
+  each enabled provider in priority order and imports the first non-empty
+  result through `BeachDataService` (which recomputes risk levels and cascades
+  to every connected hotel).
+- **Providers** (`src/lib/providers/`) implement a single `SargassumProvider`
+  interface, so new sources drop in without touching callers:
+  - `FeedSargassumProvider` — fetches a public JSON feed (`SARGASSUM_FEED_URL`).
+    The intended production path; accepts either a `riskScore` (0–100) or a raw
+    `densityIndex` (0–1). Real network fetch with timeout + error handling.
+  - `SeasonalModelProvider` — free, deterministic seasonal estimate from a
+    zone's latitude + month (`src/lib/analysis/seasonal-model.ts`). Opt-in via
+    `SARGASSUM_USE_SEASONAL_MODEL=true`; off by default so curated data is never
+    overwritten unless you ask for it.
+- If no provider is enabled, the job **safely no-ops** (`status: "skipped"`) —
+  it never invents data.
+
+**Scheduling** — two free options, pick one:
+
+- **Vercel Cron** (`vercel.json`) hits `/api/cron/update-beaches` on
+  `0 */12 * * *`. Set `CRON_SECRET`; Vercel sends it as a bearer token.
+  (Vercel's Hobby plan runs crons at most daily; Pro honors the 12h schedule.)
+- **GitHub Actions** (`.github/workflows/update-beaches.yml`) curls the endpoint
+  every 12h. Set repo secrets `APP_URL` and `CRON_SECRET`.
+
+Run it manually:
+
+```bash
+npm run beaches:update              # use configured providers
+npm run beaches:update -- --seasonal   # force the seasonal estimator
+```
 
 ## Notes & next steps
 

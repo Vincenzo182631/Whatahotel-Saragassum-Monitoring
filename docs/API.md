@@ -156,6 +156,33 @@ and can be registered directly as chatbot tools (definitions exported as
 
 ---
 
+## Scheduled update (Phase 2)
+
+### `GET|POST /api/cron/update-beaches`
+
+Runs the beach-condition refresh pipeline (Fetch → Analyze → Score → Update →
+Cascade). Intended to run every 12 hours via Vercel Cron or GitHub Actions.
+
+**Auth** — if `CRON_SECRET` is set, the request must send
+`Authorization: Bearer <CRON_SECRET>`. Unset = unprotected (local dev only).
+
+**200**
+
+```json
+{
+  "ranAt": "2026-07-09T12:00:00.000Z",
+  "source": "Public feed (USF/NOAA)",
+  "status": "updated",
+  "imported": 11,
+  "hotelsUpdated": 12
+}
+```
+
+`status` is `updated` (data applied), `skipped` (no provider configured — 200),
+or `error` (all providers failed — 502). **401** on a bad/missing bearer token.
+
+---
+
 ## Admin (Feature 6)
 
 ### `PATCH /api/admin/beaches/[id]`
