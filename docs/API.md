@@ -162,6 +162,8 @@ and can be registered directly as chatbot tools (definitions exported as
 
 Runs the beach-condition refresh pipeline (Fetch → Analyze → Score → Update →
 Cascade). Intended to run every 12 hours via Vercel Cron or GitHub Actions.
+By default it pulls real **USF/NOAA AFAI** satellite data from NOAA/AOML's
+CoastWatch ERDDAP (`source: "USF/NOAA AFAI (satellite)"`).
 
 **Auth** — if `CRON_SECRET` is set, the request must send
 `Authorization: Bearer <CRON_SECRET>`. Unset = unprotected (local dev only).

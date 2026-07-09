@@ -1,5 +1,6 @@
 import { BeachDataService } from "@/lib/beach-data-service";
 import { FeedSargassumProvider } from "@/lib/providers/feed-provider";
+import { UsfNoaaAfaiProvider } from "@/lib/providers/usf-noaa-afai";
 import { SeasonalModelProvider } from "@/lib/providers/seasonal-provider";
 import type { SargassumProvider } from "@/lib/providers/types";
 import type { BeachImportRecord } from "@/types/beach";
@@ -27,9 +28,11 @@ export async function runBeachUpdate(
 ): Promise<BeachUpdateResult> {
   const ranAt = new Date().toISOString();
 
-  // Priority: live feed first, seasonal estimate as opt-in fallback.
+  // Priority: explicit feed override → real USF/NOAA satellite data →
+  // seasonal estimate as an opt-in last resort.
   const chain = providers ?? [
     new FeedSargassumProvider(),
+    new UsfNoaaAfaiProvider(),
     new SeasonalModelProvider(),
   ];
 

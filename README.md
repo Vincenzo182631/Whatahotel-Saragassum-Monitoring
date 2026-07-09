@@ -100,16 +100,28 @@ Fetch Data → Analyze Report → Assign Risk Score → Update Database → Upda
   result through `BeachDataService` (which recomputes risk levels and cascades
   to every connected hotel).
 - **Providers** (`src/lib/providers/`) implement a single `SargassumProvider`
-  interface, so new sources drop in without touching callers:
-  - `FeedSargassumProvider` — fetches a public JSON feed (`SARGASSUM_FEED_URL`).
-    The intended production path; accepts either a `riskScore` (0–100) or a raw
-    `densityIndex` (0–1). Real network fetch with timeout + error handling.
-  - `SeasonalModelProvider` — free, deterministic seasonal estimate from a
-    zone's latitude + month (`src/lib/analysis/seasonal-model.ts`). Opt-in via
-    `SARGASSUM_USE_SEASONAL_MODEL=true`; off by default so curated data is never
-    overwritten unless you ask for it.
+  interface, so new sources drop in without touching callers. They run in
+  priority order:
+  1. `FeedSargassumProvider` — optional custom JSON feed (`SARGASSUM_FEED_URL`);
+     accepts a `riskScore` (0–100) or a raw `densityIndex` (0–1). Overrides the
+     others when set.
+  2. `UsfNoaaAfaiProvider` — **the real, free data source (on by default).**
+     Queries NOAA/AOML's CoastWatch ERDDAP for the 7-day cumulative **USF AFAI**
+     (Alternative Floating Algae Index) satellite product, samples a box around
+     each beach, takes the median AFAI over valid ocean pixels, and maps it to a
+     0–100 score (`src/lib/analysis/afai.ts`). Disable with
+     `SARGASSUM_AFAI_ENABLED=false`.
+  3. `SeasonalModelProvider` — deterministic seasonal estimate from latitude +
+     month; opt-in last resort (`SARGASSUM_USE_SEASONAL_MODEL=true`).
 - If no provider is enabled, the job **safely no-ops** (`status: "skipped"`) —
   it never invents data.
+
+**AFAI → score.** AFAI is a satellite reflectance index (higher = more floating
+sargassum). The `AFAI_CLEAR` / `AFAI_HEAVY` thresholds in
+`src/lib/analysis/afai.ts` calibrate the raw index to a consumer clarity score
+and can be tuned as ground-truth improves. Data credit: USF Optical
+Oceanography Lab (Chuanmin Hu) via NOAA/AOML CoastWatch — free for use, not for
+legal/navigational use.
 
 **Scheduling** — two free options, pick one:
 
@@ -122,7 +134,8 @@ Fetch Data → Analyze Report → Assign Risk Score → Update Database → Upda
 Run it manually:
 
 ```bash
-npm run beaches:update              # use configured providers
+npm run beaches:update              # use configured providers (AFAI by default)
+npm run beaches:update -- --afai       # force the USF/NOAA satellite provider
 npm run beaches:update -- --seasonal   # force the seasonal estimator
 ```
 
