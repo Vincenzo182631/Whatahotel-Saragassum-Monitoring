@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# A real DATABASE_URL is not needed: pages are force-dynamic with error
+# handling, so `next build` never connects. Prisma only needs a syntactically
+# valid URL to generate the client and satisfy config validation.
+env:
+  DATABASE_URL: "postgresql://user:pass@localhost:5432/ci?schema=public"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx next build
