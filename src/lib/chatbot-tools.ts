@@ -34,6 +34,31 @@ export interface HotelBeachRanking {
 }
 
 /**
+ * Common local place-names that travellers type but that aren't substrings of a
+ * monitored zone name. Each maps to a term that DOES appear in the zone name, so
+ * the substring match below resolves it. Keys are matched case-insensitively as
+ * substrings of the requested destination.
+ */
+const ZONE_ALIASES: [RegExp, string][] = [
+  [/\bkey\s*west\b/i, "Florida Keys"],
+  [/\bislamorada\b/i, "Florida Keys"],
+  [/\bmarathon\s*key\b/i, "Florida Keys"],
+  [/\bkeys\b/i, "Florida Keys"],
+  [/\bsan\s*miguel\b/i, "Cozumel"],
+  [/\bplaya\s*norte\b/i, "Isla Mujeres"],
+  [/\bpunta\s*nizuc\b/i, "South Cancun"],
+];
+
+/** Resolve traveller-typed names to a term contained in a monitored zone name. */
+function resolveSearchTerm(destination: string): string {
+  const d = destination.trim();
+  for (const [pattern, zoneTerm] of ZONE_ALIASES) {
+    if (pattern.test(d)) return zoneTerm;
+  }
+  return d;
+}
+
+/**
  * Chatbot tool: getBeachCondition(destination)  (Feature 5).
  *
  * Looks up a destination's beach zone (fuzzy, case-insensitive), summarises
@@ -44,7 +69,7 @@ export async function getBeachCondition(
   destination: string,
 ): Promise<BeachConditionResult | null> {
   const zone = await prisma.beachZone.findFirst({
-    where: { name: { contains: destination.trim(), mode: "insensitive" } },
+    where: { name: { contains: resolveSearchTerm(destination), mode: "insensitive" } },
     orderBy: { riskScore: "desc" },
     include: {
       reports: {
