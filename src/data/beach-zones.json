@@ -1,0 +1,112 @@
+[
+  {
+    "destination": "Cancun Hotel Zone",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.1333,
+    "longitude": -86.7466,
+    "riskScore": 65,
+    "source": "USF/NOAA",
+    "notes": "Seasonal sargassum arrivals typical May-August."
+  },
+  {
+    "destination": "Riviera Maya",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.6296,
+    "longitude": -87.0739,
+    "riskScore": 58,
+    "source": "USF/NOAA",
+    "notes": "Elevated belt activity offshore."
+  },
+  {
+    "destination": "Tulum",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.2114,
+    "longitude": -87.4654,
+    "riskScore": 42,
+    "source": "USF/NOAA",
+    "notes": "Higher likelihood of sargassum impact this season."
+  },
+  {
+    "destination": "Playa del Carmen",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.6274,
+    "longitude": -87.0799,
+    "riskScore": 61,
+    "source": "USF/NOAA",
+    "notes": "Moderate seasonal presence."
+  },
+  {
+    "destination": "Costa Mujeres",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.2569,
+    "longitude": -86.8103,
+    "riskScore": 88,
+    "source": "USF/NOAA",
+    "notes": "Generally clearer than southern zones."
+  },
+  {
+    "destination": "Isla Mujeres",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.2311,
+    "longitude": -86.7311,
+    "riskScore": 91,
+    "source": "USF/NOAA",
+    "notes": "West-facing beaches largely protected."
+  },
+  {
+    "destination": "Punta Cana",
+    "country": "Dominican Republic",
+    "region": "La Altagracia",
+    "latitude": 18.582,
+    "longitude": -68.4055,
+    "riskScore": 54,
+    "source": "USF/NOAA",
+    "notes": "Atlantic-facing coast sees periodic influx."
+  },
+  {
+    "destination": "Montego Bay",
+    "country": "Jamaica",
+    "region": "Saint James",
+    "latitude": 18.4762,
+    "longitude": -77.8939,
+    "riskScore": 72,
+    "source": "USF/NOAA",
+    "notes": "North coast moderate activity."
+  },
+  {
+    "destination": "Nassau",
+    "country": "Bahamas",
+    "region": "New Providence",
+    "latitude": 25.0343,
+    "longitude": -77.3963,
+    "riskScore": 84,
+    "source": "USF/NOAA",
+    "notes": "Mostly clear with intermittent patches."
+  },
+  {
+    "destination": "Miami Beach",
+    "country": "United States",
+    "region": "Florida",
+    "latitude": 25.7907,
+    "longitude": -80.13,
+    "riskScore": 93,
+    "source": "USF/NOAA",
+    "notes": "Low sargassum presence reported."
+  },
+  {
+    "destination": "Florida Keys",
+    "country": "United States",
+    "region": "Florida",
+    "latitude": 24.5551,
+    "longitude": -81.7826,
+    "riskScore": 79,
+    "source": "USF/NOAA",
+    "notes": "Scattered patches near Atlantic reef line."
+  }
+]

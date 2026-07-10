@@ -1,0 +1,81 @@
+// WhataHotel Beach Intelligence™ — Prisma schema
+// Datasource: PostgreSQL. Higher riskScore = safer beach (less sargassum).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RiskLevel {
+  LOW
+  MODERATE
+  HIGH
+}
+
+/// A monitored stretch of coastline (e.g. "Cancun Hotel Zone").
+model BeachZone {
+  id                String                 @id @default(cuid())
+  name              String                 @unique
+  country           String
+  region            String?
+  latitude          Float
+  longitude         Float
+  /// 0-100, higher = better beach conditions (less sargassum).
+  riskScore         Int
+  riskLevel         RiskLevel
+  statusDescription String
+  source            String
+  notes             String?
+  lastUpdated       DateTime               @default(now())
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  hotels            Hotel[]
+  conditions        HotelBeachCondition[]
+
+  @@index([country])
+  @@index([riskLevel])
+}
+
+/// A beachfront hotel mapped to a single beach zone.
+model Hotel {
+  id            String               @id @default(cuid())
+  name          String
+  slug          String               @unique
+  city          String
+  country       String
+  description    String?
+  pricePerNight Int?
+  rating        Float?
+  imageUrl      String?
+
+  beachZoneId   String
+  beachZone     BeachZone            @relation(fields: [beachZoneId], references: [id], onDelete: Cascade)
+  condition     HotelBeachCondition?
+
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([beachZoneId])
+  @@index([city])
+}
+
+/// Denormalised snapshot of a hotel's current beach condition,
+/// derived from its beach zone. Enables fast search/sort by beach score.
+model HotelBeachCondition {
+  id          String    @id @default(cuid())
+  hotelId     String    @unique
+  hotel       Hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  beachZoneId String
+  beachZone   BeachZone @relation(fields: [beachZoneId], references: [id], onDelete: Cascade)
+  riskScore   Int
+  riskLevel   RiskLevel
+  lastUpdated DateTime  @default(now())
+
+  @@index([beachZoneId])
+  @@index([riskLevel])
+}
