@@ -37,11 +37,45 @@ model BeachZone {
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
 
+  /// Early-warning flag: recent news/announcements indicate conditions worse
+  /// than the satellite reading (does not change riskScore, which stays
+  /// satellite-derived and auditable).
+  newsFlag          Boolean                @default(false)
+  /// One-line summary of the flag reason, surfaced to travelers/admins.
+  newsSummary       String?
+  newsCheckedAt     DateTime?
+
   hotels            Hotel[]
   conditions        HotelBeachCondition[]
+  reports           BeachReport[]
 
   @@index([country])
   @@index([riskLevel])
+}
+
+/// A recent news item / official announcement about a beach zone, discovered
+/// via news search and severity-classified by an LLM. Context only — never
+/// changes the satellite riskScore.
+model BeachReport {
+  id          String     @id @default(cuid())
+  beachZoneId String
+  beachZone   BeachZone  @relation(fields: [beachZoneId], references: [id], onDelete: Cascade)
+  headline    String
+  url         String
+  source      String
+  publishedAt DateTime
+  /// LLM-assessed severity of the sargassum situation described, or null when
+  /// the item isn't about current conditions.
+  severity    RiskLevel?
+  /// Whether the LLM judged the item relevant to current sargassum conditions.
+  relevant    Boolean    @default(true)
+  /// One-line LLM summary.
+  summary     String?
+  createdAt   DateTime   @default(now())
+
+  @@unique([beachZoneId, url])
+  @@index([beachZoneId])
+  @@index([publishedAt])
 }
 
 /// A beachfront hotel mapped to a single beach zone.

@@ -18,6 +18,8 @@ export function serializeBeachZone(
     notes: zone.notes,
     lastUpdated: zone.lastUpdated.toISOString(),
     hotelsConnected: zone._count?.hotels,
+    newsFlag: zone.newsFlag,
+    newsSummary: zone.newsSummary,
   };
 }
 

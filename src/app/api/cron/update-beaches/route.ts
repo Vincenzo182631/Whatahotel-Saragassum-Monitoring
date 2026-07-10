@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { runBeachUpdate } from "@/lib/beach-update-job";
+import { refreshBeachNews } from "@/lib/services/beach-news";
 
 export const dynamic = "force-dynamic";
 // Sargassum data changes slowly; allow a generous window for the job.
@@ -26,8 +27,14 @@ async function handle(request: NextRequest) {
 
   try {
     const result = await runBeachUpdate();
+    // News/announcement check (context + early-warning flag; never changes the
+    // satellite score). Failures here must not fail the satellite update.
+    const news = await refreshBeachNews().catch((e) => {
+      console.error("Beach news refresh failed:", e);
+      return null;
+    });
     const status = result.status === "error" ? 502 : 200;
-    return NextResponse.json(result, { status });
+    return NextResponse.json({ ...result, news }, { status });
   } catch (error) {
     console.error("Beach update job crashed:", error);
     return NextResponse.json(

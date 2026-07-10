@@ -9,6 +9,18 @@ export interface BeachConditionResult {
   summary: string;
   /** Nearby zones with better beach conditions, if this one is risky. */
   alternatives: { destination: string; riskScore: number; riskLevel: RiskLevel }[];
+  /** Early-warning flag: recent news indicates worse conditions than satellite. */
+  newsFlag: boolean;
+  /** One-line reason for the flag (headline + source), when flagged. */
+  newsSummary: string | null;
+  /** Most recent relevant news item, if any. */
+  latestReport: {
+    headline: string;
+    source: string;
+    publishedAt: string;
+    severity: RiskLevel | null;
+    summary: string | null;
+  } | null;
 }
 
 export interface HotelBeachRanking {
@@ -32,6 +44,13 @@ export async function getBeachCondition(
   const zone = await prisma.beachZone.findFirst({
     where: { name: { contains: destination.trim(), mode: "insensitive" } },
     orderBy: { riskScore: "desc" },
+    include: {
+      reports: {
+        where: { relevant: true, severity: { not: null } },
+        orderBy: { publishedAt: "desc" },
+        take: 1,
+      },
+    },
   });
 
   if (!zone) return null;
@@ -60,6 +79,7 @@ export async function getBeachCondition(
       ? `${zone.name} currently has a low likelihood of sargassum impact (beach score ${zone.riskScore}/100).`
       : `${zone.name} currently has a ${meta.label.toLowerCase()} of sargassum impact (beach score ${zone.riskScore}/100).`;
 
+  const report = zone.reports[0];
   return {
     destination,
     matchedZone: zone.name,
@@ -67,6 +87,17 @@ export async function getBeachCondition(
     riskLevel: zone.riskLevel,
     summary,
     alternatives,
+    newsFlag: zone.newsFlag,
+    newsSummary: zone.newsSummary,
+    latestReport: report
+      ? {
+          headline: report.headline,
+          source: report.source,
+          publishedAt: report.publishedAt.toISOString(),
+          severity: report.severity,
+          summary: report.summary,
+        }
+      : null,
   };
 }
 

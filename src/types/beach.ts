@@ -17,6 +17,19 @@ export interface BeachZoneDTO {
   notes: string | null;
   lastUpdated: string;
   hotelsConnected?: number;
+  /** Early-warning flag from recent news (does not change riskScore). */
+  newsFlag?: boolean;
+  newsSummary?: string | null;
+}
+
+/** A recent news item / announcement about a beach zone. */
+export interface BeachReportDTO {
+  headline: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  severity: RiskLevel | null;
+  summary: string | null;
 }
 
 /** Beach condition attached to a specific hotel. */

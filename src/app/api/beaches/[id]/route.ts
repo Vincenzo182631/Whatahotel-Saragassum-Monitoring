@@ -19,6 +19,11 @@ export async function GET(
           select: { id: true, name: true, slug: true, city: true, rating: true },
           orderBy: { name: "asc" },
         },
+        reports: {
+          where: { relevant: true },
+          orderBy: { publishedAt: "desc" },
+          take: 6,
+        },
       },
     });
 
@@ -32,6 +37,14 @@ export async function GET(
     return NextResponse.json({
       beach: serializeBeachZone(zone),
       hotels: zone.hotels,
+      reports: zone.reports.map((r) => ({
+        headline: r.headline,
+        url: r.url,
+        source: r.source,
+        publishedAt: r.publishedAt.toISOString(),
+        severity: r.severity,
+        summary: r.summary,
+      })),
     });
   } catch (error) {
     console.error(`GET /api/beaches/${params.id} failed:`, error);
