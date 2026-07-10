@@ -130,9 +130,11 @@ legal/navigational use.
 
 **Scheduling** — two free options, pick one:
 
-- **Vercel Cron** (`vercel.json`) hits `/api/cron/update-beaches` on
-  `0 */12 * * *`. Set `CRON_SECRET`; Vercel sends it as a bearer token.
-  (Vercel's Hobby plan runs crons at most daily; Pro honors the 12h schedule.)
+- **Vercel Cron** (`vercel.json`) hits `/api/cron/update-beaches` daily at
+  08:00 UTC (`0 8 * * *`). Set `CRON_SECRET`; Vercel sends it as a bearer
+  token. (Vercel's Hobby plan allows at most one cron run per day — daily is
+  ample for the 7-day cumulative AFAI product. On Pro you can raise this to
+  `0 */12 * * *`; the GitHub Actions fallback below already runs every 12h.)
 - **GitHub Actions** (`.github/workflows/update-beaches.yml`) curls the endpoint
   every 12h. Set repo secrets `APP_URL` and `CRON_SECRET`.
 

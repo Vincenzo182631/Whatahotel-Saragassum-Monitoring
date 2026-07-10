@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/update-beaches",
-      "schedule": "0 */12 * * *"
+      "schedule": "0 8 * * *"
     }
   ]
 }
