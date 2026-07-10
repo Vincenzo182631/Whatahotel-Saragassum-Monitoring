@@ -20,6 +20,9 @@ export interface BeachZoneDTO {
   /** Early-warning flag from recent news (does not change riskScore). */
   newsFlag?: boolean;
   newsSummary?: string | null;
+  /** 4-tier presentation level derived from the score. */
+  tier?: import("@/lib/levels").BeachTier;
+  tierLabel?: string;
 }
 
 /** A recent news item / announcement about a beach zone. */

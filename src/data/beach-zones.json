@@ -10,6 +10,76 @@
     "notes": "Seasonal sargassum arrivals typical May-August."
   },
   {
+    "destination": "North Cancun",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.1710,
+    "longitude": -86.8230,
+    "riskScore": 66,
+    "source": "USF/NOAA",
+    "notes": "Northern hotel zone / Punta Cancun."
+  },
+  {
+    "destination": "South Cancun",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.0500,
+    "longitude": -86.7780,
+    "riskScore": 63,
+    "source": "USF/NOAA",
+    "notes": "Southern hotel zone toward Punta Nizuc."
+  },
+  {
+    "destination": "Playa Gaviota Azul",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.1360,
+    "longitude": -86.7460,
+    "riskScore": 64,
+    "source": "USF/NOAA",
+    "notes": "Central Cancun hotel-zone beach."
+  },
+  {
+    "destination": "Playa Mujeres",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 21.2650,
+    "longitude": -86.8080,
+    "riskScore": 86,
+    "source": "USF/NOAA",
+    "notes": "North of Cancun, generally clearer."
+  },
+  {
+    "destination": "Puerto Morelos",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.8480,
+    "longitude": -86.8750,
+    "riskScore": 60,
+    "source": "USF/NOAA",
+    "notes": "Reef-protected village between Cancun and Playa del Carmen."
+  },
+  {
+    "destination": "Akumal",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.3970,
+    "longitude": -87.3190,
+    "riskScore": 55,
+    "source": "USF/NOAA",
+    "notes": "Bay beach known for sea turtles; seasonal influx."
+  },
+  {
+    "destination": "Cozumel West",
+    "country": "Mexico",
+    "region": "Quintana Roo",
+    "latitude": 20.5080,
+    "longitude": -86.9660,
+    "riskScore": 78,
+    "source": "USF/NOAA",
+    "notes": "Sheltered west coast of Cozumel (San Miguel)."
+  },
+  {
     "destination": "Riviera Maya",
     "country": "Mexico",
     "region": "Quintana Roo",

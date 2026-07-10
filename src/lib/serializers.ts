@@ -1,5 +1,6 @@
 import type { BeachZone, HotelBeachCondition, Hotel } from "@prisma/client";
 import type { BeachZoneDTO, HotelBeachConditionDTO } from "@/types/beach";
+import { tierFromScore, tierMeta } from "@/lib/levels";
 
 export function serializeBeachZone(
   zone: BeachZone & { _count?: { hotels: number } },
@@ -20,6 +21,8 @@ export function serializeBeachZone(
     hotelsConnected: zone._count?.hotels,
     newsFlag: zone.newsFlag,
     newsSummary: zone.newsSummary,
+    tier: tierFromScore(zone.riskScore),
+    tierLabel: tierMeta(tierFromScore(zone.riskScore)).label,
   };
 }
 
