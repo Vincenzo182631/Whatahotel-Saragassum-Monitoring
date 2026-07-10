@@ -27,6 +27,7 @@ export async function seedDatabase(): Promise<{ zones: number; hotels: number }>
         statusDescription: description,
         source: z.source ?? "USF/NOAA",
         notes: z.notes ?? null,
+        offshoreBearing: (z as { offshoreBearing?: number }).offshoreBearing ?? null,
       },
       update: {
         country: z.country,
@@ -38,6 +39,7 @@ export async function seedDatabase(): Promise<{ zones: number; hotels: number }>
         statusDescription: description,
         source: z.source ?? "USF/NOAA",
         notes: z.notes ?? null,
+        offshoreBearing: (z as { offshoreBearing?: number }).offshoreBearing ?? null,
       },
     });
     zoneIdByName.set(z.destination, zone.id);

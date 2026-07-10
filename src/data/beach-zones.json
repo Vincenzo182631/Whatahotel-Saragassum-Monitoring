@@ -76,6 +76,7 @@
     "latitude": 20.5080,
     "longitude": -86.9660,
     "riskScore": 78,
+    "offshoreBearing": 270,
     "source": "USF/NOAA",
     "notes": "Sheltered west coast of Cozumel (San Miguel)."
   },

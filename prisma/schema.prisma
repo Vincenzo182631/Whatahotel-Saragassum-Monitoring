@@ -45,6 +45,17 @@ model BeachZone {
   newsSummary       String?
   newsCheckedAt     DateTime?
 
+  /// Direction (degrees) from the beach out to open sea — used to compute
+  /// onshore wind (which pushes floating sargassum onto the beach). Defaults
+  /// to 90° (east-facing) when unset, correct for most Caribbean beaches.
+  offshoreBearing   Float?
+  /// 7-day wind-driven beaching outlook: [{ date, windFromDeg, windKmh,
+  /// onshore, score, tier }]. Heuristic, from free NOAA/Open-Meteo wind.
+  forecast          Json?
+  /// "improving" | "steady" | "worsening" over the outlook window.
+  forecastTrend     String?
+  forecastCheckedAt DateTime?
+
   hotels            Hotel[]
   conditions        HotelBeachCondition[]
   reports           BeachReport[]

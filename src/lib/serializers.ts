@@ -23,6 +23,8 @@ export function serializeBeachZone(
     newsSummary: zone.newsSummary,
     tier: tierFromScore(zone.riskScore),
     tierLabel: tierMeta(tierFromScore(zone.riskScore)).label,
+    forecastTrend: zone.forecastTrend,
+    forecast: (zone.forecast as BeachZoneDTO["forecast"]) ?? null,
   };
 }
 

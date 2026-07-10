@@ -23,6 +23,18 @@ export interface BeachZoneDTO {
   /** 4-tier presentation level derived from the score. */
   tier?: import("@/lib/levels").BeachTier;
   tierLabel?: string;
+  /** 7-day wind-driven outlook trend + daily projection. */
+  forecastTrend?: string | null;
+  forecast?: ForecastDayDTO[] | null;
+}
+
+export interface ForecastDayDTO {
+  date: string;
+  windFromDeg: number;
+  windKmh: number;
+  onshore: number;
+  score: number;
+  tier: import("@/lib/levels").BeachTier;
 }
 
 /** A recent news item / announcement about a beach zone. */

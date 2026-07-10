@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { runBeachUpdate } from "@/lib/beach-update-job";
 import { refreshBeachNews } from "@/lib/services/beach-news";
+import { refreshBeachForecasts } from "@/lib/services/beach-forecast";
 
 export const dynamic = "force-dynamic";
 // Sargassum data changes slowly; allow a generous window for the job.
@@ -33,8 +34,13 @@ async function handle(request: NextRequest) {
       console.error("Beach news refresh failed:", e);
       return null;
     });
+    // Wind-driven 7-day beaching forecast (free Open-Meteo). Failure-isolated.
+    const forecast = await refreshBeachForecasts().catch((e) => {
+      console.error("Beach forecast refresh failed:", e);
+      return null;
+    });
     const status = result.status === "error" ? 502 : 200;
-    return NextResponse.json({ ...result, news }, { status });
+    return NextResponse.json({ ...result, news, forecast }, { status });
   } catch (error) {
     console.error("Beach update job crashed:", error);
     return NextResponse.json(

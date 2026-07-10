@@ -9,6 +9,8 @@ export interface BeachConditionResult {
   summary: string;
   /** Nearby zones with better beach conditions, if this one is risky. */
   alternatives: { destination: string; riskScore: number; riskLevel: RiskLevel }[];
+  /** 7-day wind-driven outlook: "improving" | "steady" | "worsening" | null. */
+  forecastTrend: string | null;
   /** Early-warning flag: recent news indicates worse conditions than satellite. */
   newsFlag: boolean;
   /** One-line reason for the flag (headline + source), when flagged. */
@@ -87,6 +89,7 @@ export async function getBeachCondition(
     riskLevel: zone.riskLevel,
     summary,
     alternatives,
+    forecastTrend: zone.forecastTrend,
     newsFlag: zone.newsFlag,
     newsSummary: zone.newsSummary,
     latestReport: report

@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, CircleMarker, Tooltip, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { tierMetaFromScore } from "@/lib/levels";
+import { tierMeta, tierMetaFromScore, type BeachTier } from "@/lib/levels";
 import { relativeTime } from "@/lib/risk";
 
 export interface MapZone {
@@ -14,7 +14,15 @@ export interface MapZone {
   longitude: number;
   riskScore: number;
   lastUpdated: string;
+  forecastTrend: string | null;
+  forecast: { date: string; tier: BeachTier; score: number }[] | null;
 }
+
+const TREND_LABEL: Record<string, string> = {
+  improving: "↗ improving",
+  steady: "→ steady",
+  worsening: "↘ worsening",
+};
 
 /**
  * Interactive sargassum map — each monitored beach/zone is a color-coded marker
@@ -56,6 +64,27 @@ export default function BeachMap({ zones }: { zones: MapZone[] }) {
                   {m.emoji} <strong>{m.label}</strong> — {z.riskScore}/100
                 </div>
                 <div style={{ fontSize: 12, marginTop: 4 }}>{m.description}</div>
+                {z.forecast && z.forecast.length > 0 && (
+                  <div style={{ marginTop: 6 }}>
+                    <div style={{ fontSize: 11, color: "#666" }}>
+                      7-day outlook: {TREND_LABEL[z.forecastTrend ?? "steady"] ?? z.forecastTrend}
+                    </div>
+                    <div style={{ display: "flex", gap: 3, marginTop: 3 }}>
+                      {z.forecast.slice(0, 7).map((f) => (
+                        <span
+                          key={f.date}
+                          title={`${f.date}: ${tierMeta(f.tier).label} (${f.score})`}
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 3,
+                            backgroundColor: tierMeta(f.tier).hex,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>
                   Updated {relativeTime(z.lastUpdated)}
                 </div>

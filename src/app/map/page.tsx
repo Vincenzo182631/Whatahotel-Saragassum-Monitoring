@@ -17,14 +17,24 @@ export default async function MapPage() {
         longitude: true,
         riskScore: true,
         lastUpdated: true,
+        forecastTrend: true,
+        forecast: true,
       },
       orderBy: { name: "asc" },
     })
     .catch(() => []);
 
   const mapZones: MapZone[] = zones.map((z) => ({
-    ...z,
+    id: z.id,
+    name: z.name,
+    country: z.country,
+    region: z.region,
+    latitude: z.latitude,
+    longitude: z.longitude,
+    riskScore: z.riskScore,
     lastUpdated: z.lastUpdated.toISOString(),
+    forecastTrend: z.forecastTrend,
+    forecast: (z.forecast as MapZone["forecast"]) ?? null,
   }));
 
   return (
