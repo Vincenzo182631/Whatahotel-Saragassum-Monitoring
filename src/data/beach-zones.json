@@ -127,8 +127,9 @@
     "latitude": 21.2311,
     "longitude": -86.7311,
     "riskScore": 91,
+    "offshoreBearing": 300,
     "source": "USF/NOAA",
-    "notes": "West-facing beaches largely protected."
+    "notes": "West/north-facing tourist beaches (Playa Norte) largely sheltered."
   },
   {
     "destination": "Punta Cana",
@@ -147,8 +148,9 @@
     "latitude": 18.4762,
     "longitude": -77.8939,
     "riskScore": 72,
+    "offshoreBearing": 350,
     "source": "USF/NOAA",
-    "notes": "North coast moderate activity."
+    "notes": "Jamaica north coast — faces north, away from the Atlantic belt."
   },
   {
     "destination": "Nassau",
@@ -157,8 +159,9 @@
     "latitude": 25.0343,
     "longitude": -77.3963,
     "riskScore": 84,
+    "offshoreBearing": 15,
     "source": "USF/NOAA",
-    "notes": "Mostly clear with intermittent patches."
+    "notes": "Cable Beach / Paradise Island face north."
   },
   {
     "destination": "Miami Beach",
@@ -177,7 +180,8 @@
     "latitude": 24.5551,
     "longitude": -81.7826,
     "riskScore": 79,
+    "offshoreBearing": 150,
     "source": "USF/NOAA",
-    "notes": "Scattered patches near Atlantic reef line."
+    "notes": "Atlantic (ocean) side faces southeast toward the reef line."
   }
 ]
