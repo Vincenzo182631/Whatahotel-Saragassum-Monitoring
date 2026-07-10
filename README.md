@@ -73,6 +73,11 @@ npm run dev                   # http://localhost:3000
 
 See [`docs/API.md`](docs/API.md) for the full endpoint reference.
 
+## Deploy
+
+See [`DEPLOY.md`](DEPLOY.md) for the one-time runbook to take this live on
+Vercel + Postgres and connect it to the WhataHotel chatbot.
+
 ## Data import (Feature 7)
 
 `BeachDataService` is the single ingestion point. For the MVP it reads
