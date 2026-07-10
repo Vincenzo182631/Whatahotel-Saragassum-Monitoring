@@ -14,6 +14,16 @@ import { projectForecast, type DailyWind } from "@/lib/analysis/forecast";
 const DEFAULT_OFFSHORE_BEARING = 90; // east-facing (correct for most Caribbean beaches)
 const FORECAST_DAYS = 7;
 const TIMEOUT_MS = 12000;
+// Open-Meteo's free tier rate-limits bursts, so process zones in small
+// concurrency groups with a short pause between batches instead of firing all
+// requests at once (which was silently dropping ~5 of 18 zones per run).
+const BATCH_SIZE = 4;
+const BATCH_PAUSE_MS = 400;
+const FETCH_RETRIES = 2;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export interface BeachForecastResult {
   ranAt: string;
@@ -28,35 +38,49 @@ export async function refreshBeachForecasts(now: Date = new Date()): Promise<Bea
   });
 
   let count = 0;
-  await Promise.all(
-    zones.map(async (z) => {
-      try {
-        const daily = await fetchWind(z.latitude, z.longitude);
-        if (daily.length === 0) return;
-        const { days, trend } = projectForecast(
-          z.riskScore,
-          daily,
-          z.offshoreBearing ?? DEFAULT_OFFSHORE_BEARING,
-        );
-        await prisma.beachZone.update({
-          where: { id: z.id },
-          data: {
-            forecast: days as unknown as Prisma.InputJsonValue,
-            forecastTrend: trend,
-            forecastCheckedAt: now,
-          },
-        });
-        count += 1;
-      } catch (error) {
-        console.error(`[forecast] zone ${z.id} failed:`, error);
-      }
-    }),
-  );
+  for (let i = 0; i < zones.length; i += BATCH_SIZE) {
+    const batch = zones.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (z) => {
+        try {
+          const daily = await fetchWind(z.latitude, z.longitude);
+          if (daily.length === 0) return;
+          const { days, trend } = projectForecast(
+            z.riskScore,
+            daily,
+            z.offshoreBearing ?? DEFAULT_OFFSHORE_BEARING,
+          );
+          await prisma.beachZone.update({
+            where: { id: z.id },
+            data: {
+              forecast: days as unknown as Prisma.InputJsonValue,
+              forecastTrend: trend,
+              forecastCheckedAt: now,
+            },
+          });
+          count += 1;
+        } catch (error) {
+          console.error(`[forecast] zone ${z.id} failed:`, error);
+        }
+      }),
+    );
+    if (i + BATCH_SIZE < zones.length) await sleep(BATCH_PAUSE_MS);
+  }
 
   return { ranAt, status: "updated", zonesForecast: count };
 }
 
 async function fetchWind(latitude: number, longitude: number): Promise<DailyWind[]> {
+  for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
+    const out = await fetchWindOnce(latitude, longitude);
+    if (out.length > 0) return out;
+    // Transient miss (429 / timeout / empty) — back off briefly and retry.
+    if (attempt < FETCH_RETRIES) await sleep(500 * (attempt + 1));
+  }
+  return [];
+}
+
+async function fetchWindOnce(latitude: number, longitude: number): Promise<DailyWind[]> {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
     `&daily=wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=${FORECAST_DAYS}&timezone=auto`;
@@ -88,6 +112,9 @@ async function fetchWind(latitude: number, longitude: number): Promise<DailyWind
       out.push({ date: d.time[i], windKmh, windFromDeg });
     }
     return out;
+  } catch {
+    // Timeout/abort/network error — treat as a transient miss so the caller retries.
+    return [];
   } finally {
     clearTimeout(timer);
   }
