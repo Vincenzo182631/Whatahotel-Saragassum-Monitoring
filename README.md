@@ -111,10 +111,15 @@ Fetch Data → Analyze Report → Assign Risk Score → Update Database → Upda
      accepts a `riskScore` (0–100) or a raw `densityIndex` (0–1). Overrides the
      others when set.
   2. `UsfNoaaAfaiProvider` — **the real, free data source (on by default).**
-     Queries NOAA/AOML's CoastWatch ERDDAP for the 7-day cumulative **USF AFAI**
-     (Alternative Floating Algae Index) satellite product, samples a box around
-     each beach, takes the median AFAI over valid ocean pixels, and maps it to a
-     0–100 score (`src/lib/analysis/afai.ts`). Disable with
+     Queries NOAA/AOML's CoastWatch ERDDAP for the **USF AFAI** (Alternative
+     Floating Algae Index) satellite product, samples a box around each beach,
+     and maps the median AFAI over ocean pixels to a 0–100 score
+     (`src/lib/analysis/afai.ts`). Two reliability guards: **saturation
+     filtering** drops pixels pegged at the sensor cap (dominated by
+     cloud/sun-glint contamination, not sargassum), and a **multi-temporal
+     fallback** (7-day → 3-day → 1-day) skips a zone rather than overwrite it
+     with a cloudy read — so a fully-clouded day keeps the last good value
+     instead of showing a false "heavy sargassum". Disable with
      `SARGASSUM_AFAI_ENABLED=false`.
   3. `SeasonalModelProvider` — deterministic seasonal estimate from latitude +
      month; opt-in last resort (`SARGASSUM_USE_SEASONAL_MODEL=true`).
