@@ -6,8 +6,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled connection for serverless runtime queries.
+  url       = env("DATABASE_URL")
+  // Direct (unpooled) connection for schema push / migrations at build time.
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 enum RiskLevel {
