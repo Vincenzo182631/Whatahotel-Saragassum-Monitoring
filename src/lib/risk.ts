@@ -1,9 +1,14 @@
 // Central risk-scoring logic for Beach Intelligence.
 //
 // Score is 0-100 where a HIGHER score means a SAFER beach (less sargassum).
-//   90-100 -> LOW RISK    (🟢)
-//   60-89  -> MODERATE RISK (🟡)
-//   0-59   -> HIGH RISK    (🔴)
+//   85-100 -> LOW RISK    (🟢)
+//   45-84  -> MODERATE RISK (🟡)
+//   0-44   -> HIGH RISK    (🔴)
+//
+// These boundaries deliberately nest inside the 4-tier presentation scale in
+// levels.ts (CLEAR ≥85 = LOW, LIGHT/MODERATE 45-84 = MODERATE, HEAVY <45 =
+// HIGH) so the same score never renders "Clear" on the map while the API calls
+// it "Moderate Risk". Keep the two files in sync.
 
 export type RiskLevel = "LOW" | "MODERATE" | "HIGH";
 
@@ -20,8 +25,8 @@ export interface RiskMeta {
 }
 
 export const RISK_THRESHOLDS = {
-  LOW: 90,
-  MODERATE: 60,
+  LOW: 85,
+  MODERATE: 45,
 } as const;
 
 /** Derive the risk level from a 0-100 score. */

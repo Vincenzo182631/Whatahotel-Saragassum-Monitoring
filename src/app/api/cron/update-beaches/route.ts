@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { runBeachUpdate } from "@/lib/beach-update-job";
 import { refreshBeachNews } from "@/lib/services/beach-news";
 import { refreshBeachForecasts } from "@/lib/services/beach-forecast";
+import { cronAuthError } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 // Sargassum data changes slowly; allow a generous window for the job.
@@ -18,13 +19,8 @@ export const maxDuration = 60;
  * Exposed as both GET (Vercel Cron) and POST (manual / other schedulers).
  */
 async function handle(request: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
-  }
+  const denied = cronAuthError(request);
+  if (denied) return denied;
 
   try {
     const result = await runBeachUpdate();

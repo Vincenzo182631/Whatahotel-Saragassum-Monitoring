@@ -90,53 +90,59 @@ async function refreshZone(
   now: Date,
 ): Promise<{ stored: number; flagged: boolean }> {
   const raw = await fetchGoogleNews(searchTerm(zone.name, zone.country), now);
-  if (raw.length === 0) {
-    await prisma.beachZone.update({
-      where: { id: zone.id },
-      data: { newsCheckedAt: now },
-    });
-    return { stored: 0, flagged: false };
-  }
 
-  const classified = await classify(zone.name, raw);
-
-  // Upsert each relevant/scored item.
+  // Classify and upsert whatever the fetch returned (possibly nothing).
   let stored = 0;
-  for (let i = 0; i < raw.length; i++) {
-    const c = classified[i];
-    if (!c) continue;
-    const severity = c.severity === "NONE" ? null : (c.severity as RiskLevel);
-    await prisma.beachReport.upsert({
-      where: { beachZoneId_url: { beachZoneId: zone.id, url: raw[i].url } },
-      create: {
-        beachZoneId: zone.id,
-        headline: raw[i].headline,
-        url: raw[i].url,
-        source: raw[i].source,
-        publishedAt: raw[i].publishedAt,
-        severity,
-        relevant: c.relevant,
-        summary: c.summary || null,
-      },
-      update: { severity, relevant: c.relevant, summary: c.summary || null },
-    });
-    stored += 1;
+  if (raw.length > 0) {
+    const classified = await classify(zone.name, raw);
+    for (let i = 0; i < raw.length; i++) {
+      const c = classified[i];
+      if (!c) continue;
+      const severity = c.severity === "NONE" ? null : (c.severity as RiskLevel);
+      await prisma.beachReport.upsert({
+        where: { beachZoneId_url: { beachZoneId: zone.id, url: raw[i].url } },
+        create: {
+          beachZoneId: zone.id,
+          headline: raw[i].headline,
+          url: raw[i].url,
+          source: raw[i].source,
+          publishedAt: raw[i].publishedAt,
+          severity,
+          relevant: c.relevant,
+          summary: c.summary || null,
+        },
+        update: { severity, relevant: c.relevant, summary: c.summary || null },
+      });
+      stored += 1;
+    }
   }
 
-  // Early-warning flag: worst recent RELEVANT severity vs. satellite level.
+  // Early-warning flag: recomputed from the STORED reports, not this run's
+  // fetch. That makes the flag's lifecycle robust in both directions:
+  //  - an LLM/fetch hiccup (nothing classified this run) can't erase a flag
+  //    whose stored evidence is still within the window, and
+  //  - a flag naturally EXPIRES once its newest qualifying report is older
+  //    than FLAG_DAYS, even if Google stops returning any items for the zone.
   const flagCutoff = new Date(now.getTime() - FLAG_DAYS * 86400000);
+  const recent = await prisma.beachReport.findMany({
+    where: {
+      beachZoneId: zone.id,
+      relevant: true,
+      severity: { not: null },
+      publishedAt: { gte: flagCutoff },
+    },
+    orderBy: { publishedAt: "desc" },
+  });
+
   let worst: RiskLevel | null = null;
   let worstSummary: string | null = null;
   let worstSource = "";
-  for (let i = 0; i < raw.length; i++) {
-    const c = classified[i];
-    if (!c || !c.relevant || c.severity === "NONE") continue;
-    if (raw[i].publishedAt < flagCutoff) continue;
-    const sev = c.severity as RiskLevel;
+  for (const r of recent) {
+    const sev = r.severity as RiskLevel;
     if (worst === null || SEV_RANK[sev] > SEV_RANK[worst]) {
       worst = sev;
-      worstSummary = c.summary || raw[i].headline;
-      worstSource = raw[i].source;
+      worstSummary = r.summary || r.headline;
+      worstSource = r.source;
     }
   }
 

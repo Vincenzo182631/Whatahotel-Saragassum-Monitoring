@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { seedDatabase } from "@/lib/seed-data";
+import { cronAuthError } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -13,13 +14,8 @@ export const maxDuration = 60;
  * Protected by the `CRON_SECRET` bearer token, same as the update cron.
  */
 async function handle(request: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
-  }
+  const denied = cronAuthError(request);
+  if (denied) return denied;
 
   try {
     const result = await seedDatabase();

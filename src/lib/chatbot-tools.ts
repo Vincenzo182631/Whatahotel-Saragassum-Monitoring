@@ -44,7 +44,8 @@ const ZONE_ALIASES: [RegExp, string][] = [
   [/\bislamorada\b/i, "Florida Keys"],
   [/\bmarathon\s*key\b/i, "Florida Keys"],
   [/\bkeys\b/i, "Florida Keys"],
-  [/\bsan\s*miguel\b/i, "Cozumel"],
+  // "San Miguel" = Cozumel's town — but NOT San Miguel de Allende (inland).
+  [/\bsan\s*miguel\b(?!\s+de\s+allende)/i, "Cozumel"],
   [/\bplaya\s*norte\b/i, "Isla Mujeres"],
   [/\bpunta\s*nizuc\b/i, "South Cancun"],
 ];
@@ -68,9 +69,9 @@ function resolveSearchTerm(destination: string): string {
 export async function getBeachCondition(
   destination: string,
 ): Promise<BeachConditionResult | null> {
-  const zone = await prisma.beachZone.findFirst({
-    where: { name: { contains: resolveSearchTerm(destination), mode: "insensitive" } },
-    orderBy: { riskScore: "desc" },
+  const term = resolveSearchTerm(destination);
+  const matches = await prisma.beachZone.findMany({
+    where: { name: { contains: term, mode: "insensitive" } },
     include: {
       reports: {
         where: { relevant: true, severity: { not: null } },
@@ -79,8 +80,21 @@ export async function getBeachCondition(
       },
     },
   });
+  if (matches.length === 0) return null;
 
-  if (!zone) return null;
+  // Prefer the canonical zone: exact name, then a zone whose name STARTS with
+  // the query ("Cancun" -> "Cancun Hotel Zone", not "North Cancun"). Among
+  // equally-plausible matches, report the WORST score — a safety tool should
+  // never resolve an ambiguous destination to its most optimistic sub-zone.
+  const t = term.trim().toLowerCase();
+  const rank = (name: string) => {
+    const n = name.toLowerCase();
+    if (n === t) return 0;
+    if (n.startsWith(t)) return 1;
+    return 2;
+  };
+  matches.sort((a, b) => rank(a.name) - rank(b.name) || a.riskScore - b.riskScore);
+  const zone = matches[0];
 
   let alternatives: BeachConditionResult["alternatives"] = [];
   if (zone.riskLevel !== "LOW") {
@@ -138,11 +152,15 @@ export async function rankHotelsByBeach(
   limit = 5,
 ): Promise<HotelBeachRanking[]> {
   const term = destination.trim();
+  // Resolve aliases the same way getBeachCondition does, so "Key West" finds
+  // Florida Keys hotels instead of a condition with an empty hotel list.
+  const zoneTerm = resolveSearchTerm(term);
   const hotels = await prisma.hotel.findMany({
     where: {
       OR: [
         { city: { contains: term, mode: "insensitive" } },
         { beachZone: { name: { contains: term, mode: "insensitive" } } },
+        { beachZone: { name: { contains: zoneTerm, mode: "insensitive" } } },
         { beachZone: { country: { contains: term, mode: "insensitive" } } },
       ],
       condition: { isNot: null },
