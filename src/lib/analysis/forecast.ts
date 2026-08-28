@@ -3,7 +3,9 @@
 // Floating sargassum sitting offshore is pushed toward or away from a beach by
 // the wind. Onshore wind (blowing from the sea toward land) drives accumulation;
 // offshore wind clears it. We project the current 0-100 beach score forward
-// using each day's dominant wind relative to the beach's offshore bearing.
+// using each day's dominant wind relative to the beach's offshore bearing,
+// scaled by how much sargassum the current score implies is actually out there
+// to be moved.
 //
 // This is a heuristic, not a validated numerical drift model — it captures the
 // dominant driver (wind) from real free forecast data, and is clearly labeled.
@@ -54,9 +56,25 @@ export function onshoreComponent(
 }
 
 /**
+ * Fraction of the wind's beaching effect that can actually be realised, 0..1.
+ *
+ * Onshore wind moves sargassum that is already floating offshore; it cannot
+ * beach what isn't there. The score is the only measure we hold of how much is
+ * around, so its distance from clean stands in for the available supply: a zone
+ * reading 100 has nothing to push ashore however hard the wind blows onshore,
+ * while a zone at 40 has plenty.
+ */
+export function availableSargassum(score: number): number {
+  return (100 - clamp(score)) / 100;
+}
+
+/**
  * Project the current score across the daily wind outlook. Onshore days lower
  * the score (more beaching), offshore days raise it, with a gentle reversion so
- * the trajectory doesn't run away.
+ * the trajectory doesn't run away. The wind's effect is scaled by how much
+ * sargassum is actually present — without that, a persistent onshore breeze
+ * drags every zone's outlook down whether or not there is any seaweed in the
+ * water, which reads as "worsening" for every east-facing Caribbean beach.
  */
 export function projectForecast(
   currentScore: number,
@@ -64,12 +82,13 @@ export function projectForecast(
   offshoreBearing: number,
 ): { days: ForecastDay[]; trend: ForecastTrend } {
   const base = clamp(currentScore);
+  const available = availableSargassum(base);
   let score = base;
   const days: ForecastDay[] = [];
 
   for (const d of daily) {
     const onshore = onshoreComponent(d.windFromDeg, d.windKmh, offshoreBearing);
-    let next = score - K * onshore;
+    let next = score - K * onshore * available;
     next = next + REVERT * (base - next);
     next = clamp(next);
     days.push({
