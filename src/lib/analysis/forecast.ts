@@ -15,6 +15,7 @@ import { tierFromScore, type BeachTier } from "@/lib/levels";
 export interface DailyWind {
   date: string;
   windFromDeg: number; // direction the wind blows FROM
+  /** Daily MEAN wind speed. K is calibrated against the mean, not the peak. */
   windKmh: number;
 }
 
@@ -30,7 +31,13 @@ export interface ForecastDay {
 
 export type ForecastTrend = "improving" | "steady" | "worsening";
 
-const K = 0.3; // score points shed per km/h of onshore wind per day
+// Score points shed per km/h of onshore wind per day, against the daily MEAN
+// wind speed. Calibrated from 0.3 (which was tuned against the daily maximum)
+// by the mean/max ratio measured across all 18 monitored zones over 684
+// zone-days of Open-Meteo data: r = 0.649, so 0.3 / 0.649 ≈ 0.46. Switching the
+// input without this rescale would weaken every zone's outlook by ~35% and drop
+// genuinely affected beaches out of the "worsening" band.
+const K = 0.46;
 const REVERT = 0.2; // daily pull back toward the current baseline (belt effect)
 
 function deg2rad(d: number): number {
