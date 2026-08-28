@@ -5,8 +5,10 @@ import { projectForecast, type DailyWind } from "@/lib/analysis/forecast";
 /**
  * Beach Forecast service — a 7-day wind-driven beaching outlook per zone.
  *
- * Pulls the free NOAA/Open-Meteo daily wind forecast (no API key) and projects
- * each zone's current satellite score forward using onshore/offshore wind. It
+ * Pulls the free NOAA/Open-Meteo daily mean wind forecast (no API key) and
+ * projects each zone's current satellite score forward using onshore/offshore
+ * wind. The mean represents the day's sustained push; the daily maximum is a
+ * single peak that overstates how long the wind actually blew onshore. It
  * never changes the current score; it stores a forward outlook + trend. Runs on
  * the same daily cadence as the satellite update.
  */
@@ -83,7 +85,7 @@ async function fetchWind(latitude: number, longitude: number): Promise<DailyWind
 async function fetchWindOnce(latitude: number, longitude: number): Promise<DailyWind[]> {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
-    `&daily=wind_speed_10m_max,wind_direction_10m_dominant&forecast_days=${FORECAST_DAYS}&timezone=auto`;
+    `&daily=wind_speed_10m_mean,wind_direction_10m_dominant&forecast_days=${FORECAST_DAYS}&timezone=auto`;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -97,16 +99,19 @@ async function fetchWindOnce(latitude: number, longitude: number): Promise<Daily
     const data = (await res.json()) as {
       daily?: {
         time?: string[];
-        wind_speed_10m_max?: number[];
+        wind_speed_10m_mean?: number[];
         wind_direction_10m_dominant?: number[];
       };
     };
     const d = data.daily;
-    if (!d?.time || !d.wind_speed_10m_max || !d.wind_direction_10m_dominant) return [];
+    // No fall back to the daily maximum if the mean is missing: K is calibrated
+    // against the mean, so substituting the peak would overstate every day's
+    // push by ~54%. A missing field is a transient miss the caller retries.
+    if (!d?.time || !d.wind_speed_10m_mean || !d.wind_direction_10m_dominant) return [];
 
     const out: DailyWind[] = [];
     for (let i = 0; i < d.time.length; i++) {
-      const windKmh = d.wind_speed_10m_max[i];
+      const windKmh = d.wind_speed_10m_mean[i];
       const windFromDeg = d.wind_direction_10m_dominant[i];
       if (typeof windKmh !== "number" || typeof windFromDeg !== "number") continue;
       out.push({ date: d.time[i], windKmh, windFromDeg });
